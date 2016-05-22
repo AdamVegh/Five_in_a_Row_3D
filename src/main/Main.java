@@ -15,6 +15,7 @@ import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -38,7 +39,7 @@ public class Main extends Application {
 
 	Sign currentSign;
 
-	Logic logic = new Logic(new HashMap<Coordinates, Sign>());
+	Logic logic = new Logic();
 	Grid grid;
 	Group group;
 	YouWin youWin;
@@ -46,6 +47,7 @@ public class Main extends Application {
 	boolean isThereWinner = false;
 	
 	public void clearGrid(Group group) {
+		logic.getUsedPos().clear();
 		group.getChildren().clear();
 		for (List<Box> rowBoxes : grid.getGridBoxes()) {
 			for (Box box : rowBoxes) {
@@ -91,7 +93,11 @@ public class Main extends Application {
 			public void handle(KeyEvent event) {
 				if (isThereWinner) {
 					clearGrid(group);
-					logic = new Logic(new HashMap<>());
+					logic = new Logic();
+					sign_X = 0;
+					sign_Y = 0;
+					currentSign = new SignX(0.8 * oneGridSize, 0.8 * oneGridSize, 0.8 * oneGridSize, Color.BLUE, DrawMode.FILL);
+					group.getChildren().add((Node) currentSign);
 					isThereWinner = false;
 					return;
 				}
@@ -136,13 +142,10 @@ public class Main extends Application {
 						}
 					}
 					scene.setFill(Color.GREEN);
-					logic.putToUsedPos(new Coordinates(sign_X, sign_Y), currentSign);
+					logic.addEngagedPlace(new Coordinates(sign_X, sign_Y), currentSign);
 					((Shape3D) currentSign).setTranslateZ(0);
 
-					if (logic.anybodyWin(new HorizontalCoordinatesCompatator())
-							|| logic.anybodyWin(new VerticalCoordinatesComparator())
-							|| logic.anybodyWin(new TopLeftBottomRightDiagComparator())
-							|| logic.anybodyWin(new BottomLeftTopRightDiagComparator())) {
+					if (logic.hasWinner()) {
 
 						clearGrid(group);
 

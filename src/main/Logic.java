@@ -10,24 +10,26 @@ import elements_3D.*;
 
 public class Logic {
 
-	public static final int SIGNS_IN_A_ROW = 5;
-	private HashMap<Coordinates, Sign> usedPos;
+	public static final int SIGNS_IN_A_ROW = 4;
+	private HashMap<Coordinates, Sign> usedPos = new HashMap<>();
 	private ArrayList<Coordinates> keyRowsList = new ArrayList<>();
 
-	public Logic(HashMap<Coordinates, Sign> usedPos) {
-		this.usedPos = usedPos;
-	}
-
+	
 	public HashMap<Coordinates, Sign> getUsedPos() {
 		return usedPos;
 	}
 
-	public void putToUsedPos(Coordinates key, Sign value) {
+	public void addEngagedPlace(Coordinates key, Sign value) {
 		usedPos.put(key, value);
 		keyRowsList.add(key);
 	}
 
-	public boolean areSignsNeighbours(Coordinates currentCoord,Coordinates lastCoord,Comparator<Coordinates> comparator){
+	public void clearAllPlaces() {
+		usedPos.clear();
+		keyRowsList.clear();
+	}
+	
+	private boolean areSignsNeighbours(Coordinates currentCoord,Coordinates lastCoord,Comparator<Coordinates> comparator){
 		return comparator instanceof HorizontalCoordinatesCompatator ?
 				(currentCoord.getX() == lastCoord.getX() + 1) && (currentCoord.getY() == lastCoord.getY()) :
 				comparator instanceof VerticalCoordinatesComparator ?
@@ -38,7 +40,7 @@ public class Logic {
 				(currentCoord.getX() == lastCoord.getX() + 1) && (currentCoord.getY() == lastCoord.getY() - 1) : null;
 	}
 
-	public boolean anybodyWin(Comparator<Coordinates> coordinatesComparator) {
+	private boolean isWinnerRow(Comparator<Coordinates> coordinatesComparator) {
 		if (usedPos.keySet().size() < SIGNS_IN_A_ROW)
 			return false;
 
@@ -67,5 +69,12 @@ public class Logic {
 			lastSign = usedPos.get(lastCoord);
 		}
 		return false;
+	}
+	
+	public boolean hasWinner() {
+		return isWinnerRow(new HorizontalCoordinatesCompatator()) ||
+			   isWinnerRow(new VerticalCoordinatesComparator()) ||
+			   isWinnerRow(new TopLeftBottomRightDiagComparator()) ||
+			   isWinnerRow(new BottomLeftTopRightDiagComparator());
 	}
 }
