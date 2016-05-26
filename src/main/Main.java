@@ -19,7 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.input.KeyEvent;
-//import javafx.scene.input.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.DrawMode;
@@ -39,8 +39,8 @@ public class Main extends Application {
 	public static int gridNumber = 15;
 	public static final int oneGridSize = 1;
 
-	String redName = "Ádám";
-	String blueName = "Éva";
+	String redName = "RED";
+	String blueName = "BLUE";
 
 	int redWin = 0;
 	int blueWin = 0;
@@ -90,12 +90,12 @@ public class Main extends Application {
 		scene.setFill(sceneColor);
 
 		scene.setFocusTraversable(true);
-//		scene.setOnMouseDragged(new EventHandler<MouseEvent>() {
-//			@Override
-//			public void handle(MouseEvent event) {
-//
-//			}
-//		});
+		scene.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				System.out.println("Hello World!");
+			}
+		});
 
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override

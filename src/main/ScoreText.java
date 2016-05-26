@@ -3,6 +3,9 @@ package main;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -45,8 +48,10 @@ public class ScoreText {
 	
 	
 	private void setText(Text text, Color color) {
+		Stop[] stops = new Stop[] {new Stop(0, Color.WHITE), new Stop(1, color)};
+		LinearGradient lg = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
 		text.setFont(new Font("Arial Black", 30));
-		text.setFill(color);
+		text.setFill(lg);
 		text.setEffect(new DropShadow(25, color));
 	}
 	
