@@ -10,7 +10,7 @@ import elements_3D.*;
 
 public class Logic {
 
-	public static final int SIGNS_IN_A_ROW = 4;
+	public static final int SIGNS_IN_A_ROW = 5;
 	private HashMap<Coordinates, Sign> usedPos = new HashMap<>();
 	private ArrayList<Coordinates> keyRowsList = new ArrayList<>();
 

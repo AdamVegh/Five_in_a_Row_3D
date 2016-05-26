@@ -1,12 +1,14 @@
 package main;
 
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import coordinates_comparators.*;
-import elements_3D.*;
+import coordinates_comparators.Coordinates;
+import elements_3D.Grid;
+import elements_3D.Sign;
+import elements_3D.SignO;
+import elements_3D.SignX;
+import elements_3D.YouWin;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -14,10 +16,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+//import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.DrawMode;
@@ -34,18 +36,28 @@ public class Main extends Application {
 	private int sign_X = 0;
 	private int sign_Y = 0;
 
-	static int gridNumber = 15;
+	public static int gridNumber = 15;
 	public static final int oneGridSize = 1;
+
+	String redName = "Ádám";
+	String blueName = "Éva";
+
+	int redWin = 0;
+	int blueWin = 0;
+
+	ScoreText scoreText = new ScoreText(redName, blueName, redWin, blueWin, MAX_X);
+	SubScene textScene;
 
 	Sign currentSign;
 
 	Logic logic = new Logic();
+	Color sceneColor = Color.DARKSLATEGREY;
 	Grid grid;
 	Group group;
 	YouWin youWin;
-	
+
 	boolean isThereWinner = false;
-	
+
 	public void clearGrid(Group group) {
 		logic.getUsedPos().clear();
 		group.getChildren().clear();
@@ -57,9 +69,9 @@ public class Main extends Application {
 	}
 
 	public Parent setStageContent() {
-		
 		currentSign = new SignX(0.8 * oneGridSize, 0.8 * oneGridSize, 0.8 * oneGridSize, Color.BLUE, DrawMode.FILL);
 		grid = new Grid(gridNumber, oneGridSize);
+		textScene = new SubScene(scoreText.getTextBox(), MAX_X, MAX_Y);
 
 		PerspectiveCamera cam = new PerspectiveCamera(true);
 		cam.getTransforms().addAll(new Rotate(-23, Rotate.Y_AXIS), new Rotate(-25, Rotate.X_AXIS),
@@ -71,24 +83,21 @@ public class Main extends Application {
 				group.getChildren().add(box);
 			}
 		}
-
 		group.getChildren().addAll((Node) currentSign, cam);
 
-		SubScene scene = new SubScene(group, MAX_X, MAX_Y, true, null);
+		SubScene scene = new SubScene(group, MAX_X, MAX_Y, true, SceneAntialiasing.BALANCED);
 		scene.setCamera(cam);
-		scene.setFill(Color.AQUAMARINE);
+		scene.setFill(sceneColor);
 
 		scene.setFocusTraversable(true);
-		scene.setOnMouseDragged(new EventHandler<MouseEvent>() {
+//		scene.setOnMouseDragged(new EventHandler<MouseEvent>() {
+//			@Override
+//			public void handle(MouseEvent event) {
+//
+//			}
+//		});
 
-			@Override
-			public void handle(MouseEvent event) {
-				
-			}
-		});
-		
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-
 			@Override
 			public void handle(KeyEvent event) {
 				if (isThereWinner) {
@@ -96,7 +105,8 @@ public class Main extends Application {
 					logic = new Logic();
 					sign_X = 0;
 					sign_Y = 0;
-					currentSign = new SignX(0.8 * oneGridSize, 0.8 * oneGridSize, 0.8 * oneGridSize, Color.BLUE, DrawMode.FILL);
+					currentSign = new SignX(0.8 * oneGridSize, 0.8 * oneGridSize, 0.8 * oneGridSize, Color.BLUE,
+							DrawMode.FILL);
 					group.getChildren().add((Node) currentSign);
 					isThereWinner = false;
 					return;
@@ -146,7 +156,12 @@ public class Main extends Application {
 					((Shape3D) currentSign).setTranslateZ(0);
 
 					if (logic.hasWinner()) {
+						if (currentSign instanceof SignX)
+							++blueWin;
+						else if (currentSign instanceof SignO)
+							++redWin;
 
+						scoreText.setScoreOnTextBox(redWin, blueWin);
 						clearGrid(group);
 
 						youWin = new YouWin(currentSign, new ArrayList<>());
@@ -154,7 +169,7 @@ public class Main extends Application {
 						for (Sign sign : youWin.getYouWinSigns()) {
 							group.getChildren().add((Node) sign);
 						}
-						
+
 						isThereWinner = true;
 						return;
 					}
@@ -179,13 +194,12 @@ public class Main extends Application {
 		scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent event) {
-				scene.setFill(Color.AQUAMARINE);
+				scene.setFill(sceneColor);
 			}
 		});
 
 		Group g2 = new Group();
-		g2.getChildren().add(scene);
-
+		g2.getChildren().addAll(scene, textScene);
 		return g2;
 	}
 
