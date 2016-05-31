@@ -19,7 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+//import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.DrawMode;
@@ -35,17 +35,25 @@ public class Main extends Application {
 
 	private int sign_X = 0;
 	private int sign_Y = 0;
+	
+	private int startcameraDistance = -40;
+	private int startcameraRotateX = 0;
+	private int startcameraRotateY = 0;
+	
+	private int cameraDistance = startcameraDistance;
+	private int cameraRotateX = startcameraRotateX;
+	private int cameraRotateY = startcameraRotateY;
 
 	public static int gridNumber = 15;
 	public static final int oneGridSize = 1;
 
-	String redName = "RED";
-	String blueName = "BLUE";
+	String redName = "Ádám";
+	String blueName = "Éva";
 
-	int redWin = 0;
-	int blueWin = 0;
+	private int redWin = 0;
+	private int blueWin = 0;
 
-	ScoreText scoreText = new ScoreText(redName, blueName, redWin, blueWin, MAX_X);
+	ScoreText scoreText;
 	SubScene textScene;
 
 	Sign currentSign;
@@ -71,11 +79,13 @@ public class Main extends Application {
 	public Parent setStageContent() {
 		currentSign = new SignX(0.8 * oneGridSize, 0.8 * oneGridSize, 0.8 * oneGridSize, Color.BLUE, DrawMode.FILL);
 		grid = new Grid(gridNumber, oneGridSize);
+		scoreText = new ScoreText(redName, blueName, redWin, blueWin, MAX_X);
 		textScene = new SubScene(scoreText.getTextBox(), MAX_X, MAX_Y);
 
 		PerspectiveCamera cam = new PerspectiveCamera(true);
-		cam.getTransforms().addAll(new Rotate(-23, Rotate.Y_AXIS), new Rotate(-25, Rotate.X_AXIS),
-				new Translate(0, 0, -35));
+		cam.getTransforms().addAll(new Rotate(cameraRotateX, Rotate.X_AXIS),
+								   new Rotate(cameraRotateY, Rotate.Y_AXIS),
+								   new Translate(0, 0, cameraDistance));
 
 		group = new Group();
 		for (List<Box> rowBoxes : grid.getGridBoxes()) {
@@ -90,27 +100,17 @@ public class Main extends Application {
 		scene.setFill(sceneColor);
 
 		scene.setFocusTraversable(true);
-		scene.setOnMousePressed(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				System.out.println("Hello World!");
-			}
-		});
+//		scene.setOnMouseDragged(new EventHandler<MouseEvent>() {
+//			@Override
+//			public void handle(MouseEvent event) {
+//
+//			}
+//		});
 
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent event) {
-				if (isThereWinner) {
-					clearGrid(group);
-					logic = new Logic();
-					sign_X = 0;
-					sign_Y = 0;
-					currentSign = new SignX(0.8 * oneGridSize, 0.8 * oneGridSize, 0.8 * oneGridSize, Color.BLUE,
-							DrawMode.FILL);
-					group.getChildren().add((Node) currentSign);
-					isThereWinner = false;
-					return;
-				}
+				
 				switch (event.getCode()) {
 				case LEFT:
 					sign_X -= oneGridSize;
@@ -144,7 +144,62 @@ public class Main extends Application {
 					((Node) currentSign).setTranslateY(sign_Y);
 					break;
 
+				case W:
+					cam.getTransforms().add(new Translate(0, 0, -cameraDistance));
+					cam.getTransforms().add(new Rotate(-cameraRotateX, Rotate.X_AXIS));
+					cameraRotateX += 5;
+					cam.getTransforms().add(new Rotate(cameraRotateX, Rotate.X_AXIS));
+					cam.getTransforms().add(new Translate(0, 0, cameraDistance));
+					break;
+				
+				case S:
+					cam.getTransforms().add(new Translate(0, 0, -cameraDistance));
+					cam.getTransforms().add(new Rotate(-cameraRotateX, Rotate.X_AXIS));
+					cameraRotateX -= 5;
+					cam.getTransforms().add(new Rotate(cameraRotateX, Rotate.X_AXIS));
+					cam.getTransforms().add(new Translate(0, 0, cameraDistance));
+					break;
+					
+				case A:
+					cam.getTransforms().add(new Translate(0, 0, -cameraDistance));
+					cam.getTransforms().add(new Rotate(-cameraRotateY, Rotate.Y_AXIS));
+					cameraRotateY -= 5;
+					cam.getTransforms().add(new Rotate(cameraRotateY, Rotate.Y_AXIS));
+					cam.getTransforms().add(new Translate(0, 0, cameraDistance));
+					break;
+				
+				case D:
+					cam.getTransforms().add(new Translate(0, 0, -cameraDistance));
+					cam.getTransforms().add(new Rotate(-cameraRotateY, Rotate.Y_AXIS));
+					cameraRotateY += 5;
+					cam.getTransforms().add(new Rotate(cameraRotateY, Rotate.Y_AXIS));
+					cam.getTransforms().add(new Translate(0, 0, cameraDistance));
+					break;
+					
+				case Q:
+					cam.getTransforms().add(new Translate(0, 0, -cameraDistance));
+					cameraDistance += 5;
+					cam.getTransforms().add(new Translate(0, 0, cameraDistance));
+					break;
+				
+				case E:
+					cam.getTransforms().add(new Translate(0, 0, -cameraDistance));
+					cameraDistance -= 5;
+					cam.getTransforms().add(new Translate(0, 0, cameraDistance));
+					break;
+					
 				case ENTER:
+					if (isThereWinner) {
+						clearGrid(group);
+						logic = new Logic();
+						sign_X = 0;
+						sign_Y = 0;
+						currentSign = new SignX(0.8 * oneGridSize, 0.8 * oneGridSize, 0.8 * oneGridSize, Color.BLUE,
+								DrawMode.FILL);
+						group.getChildren().add((Node) currentSign);
+						isThereWinner = false;
+						return;
+					}
 					for (Coordinates coord : logic.getUsedPos().keySet()) {
 						if ((coord.getX() == sign_X) && (coord.getY() == sign_Y)) {
 							scene.setFill(Color.RED);
