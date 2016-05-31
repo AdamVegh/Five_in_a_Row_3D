@@ -1,5 +1,6 @@
 package main;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 //import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Box;
@@ -65,6 +68,12 @@ public class Main extends Application {
 	YouWin youWin;
 
 	boolean isThereWinner = false;
+	
+	String moveSound = "moveSound.wav";
+	String putSound = "putSound.wav";
+	String winSound = "winSound.wav";
+	String notSound = "notSound.wav";
+	
 
 	public void clearGrid(Group group) {
 		logic.getUsedPos().clear();
@@ -76,6 +85,11 @@ public class Main extends Application {
 		}
 	}
 
+	private void soundPlayer(String filepath) {
+		MediaPlayer mp = new MediaPlayer(new Media(new File(filepath).toURI().toString()));
+		mp.play();
+	}
+	
 	public Parent setStageContent() {
 		currentSign = new SignX(0.8 * oneGridSize, 0.8 * oneGridSize, 0.8 * oneGridSize, Color.BLUE, DrawMode.FILL);
 		grid = new Grid(gridNumber, oneGridSize);
@@ -118,6 +132,7 @@ public class Main extends Application {
 						sign_X += oneGridSize;
 					}
 					((Node) currentSign).setTranslateX(sign_X);
+					soundPlayer(moveSound);
 					break;
 
 				case RIGHT:
@@ -126,6 +141,7 @@ public class Main extends Application {
 						sign_X -= oneGridSize;
 					}
 					((Node) currentSign).setTranslateX(sign_X);
+					soundPlayer(moveSound);
 					break;
 
 				case UP:
@@ -134,6 +150,7 @@ public class Main extends Application {
 						sign_Y += oneGridSize;
 					}
 					((Node) currentSign).setTranslateY(sign_Y);
+					soundPlayer(moveSound);
 					break;
 
 				case DOWN:
@@ -142,6 +159,7 @@ public class Main extends Application {
 						sign_Y -= oneGridSize;
 					}
 					((Node) currentSign).setTranslateY(sign_Y);
+					soundPlayer(moveSound);
 					break;
 
 				case W:
@@ -203,6 +221,7 @@ public class Main extends Application {
 					for (Coordinates coord : logic.getUsedPos().keySet()) {
 						if ((coord.getX() == sign_X) && (coord.getY() == sign_Y)) {
 							scene.setFill(Color.RED);
+							soundPlayer(notSound);
 							return;
 						}
 					}
@@ -224,11 +243,12 @@ public class Main extends Application {
 						for (Sign sign : youWin.getYouWinSigns()) {
 							group.getChildren().add((Node) sign);
 						}
-
+						soundPlayer(winSound);
 						isThereWinner = true;
 						return;
 					}
-
+					soundPlayer(putSound);
+					
 					sign_X = 0;
 					sign_Y = 0;
 					if (currentSign instanceof SignX) {
